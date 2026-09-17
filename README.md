@@ -5,7 +5,7 @@ A 32:9 / ultrawide fix for **The Legend of Heroes: Trails in the Sky 2nd Chapter
 Removes the engine's aspect-ratio clamp (full-width rendering, no pillarboxing) and skips the cutscene letterbox bars.
 Shipped as two equivalent implementations: a **SUWSF runtime patch** (modifies nothing on disk) or a **static byte patcher**.
 
-> **Unofficial patch** — an independent third-party work, not affiliated with Falcom or Lyall.
+> **Unofficial patch** — an independent third-party mod.
 >
 > 中文说明见文末（Chinese notes at the bottom of this page）。
 
@@ -88,13 +88,6 @@ python check_patterns.py sora_2nd.exe.bak # check the vanilla backup
 - Black borders drawn by the `black_belt` vfx during story scenes are not covered (they need runtime logic; neither the static patch nor SUWSF can do it).
 - Some HUD anchor positions are likewise runtime logic and are not covered.
 
-## Independence & compatibility
-
-- An independent third-party work: not affiliated with Falcom or Lyall, and no code is reused from others. All 4 writes were reverse-engineered independently; only the approach was inspired by Lyall's *Sky1stChapterFix* (see Credits).
-- As of 2026-09 no other public ultrawide fix for the 2nd Chapter exists (Lyall has not released a 2nd Chapter version; his 1st Chapter fix contains the same core fixes plus extras such as near-camera dithering removal and <16:9 FOV correction).
-- If other solutions appear (including a 2nd Chapter fix by Lyall), pick whichever you prefer — they don't conflict. This repo will keep being maintained.
-- Do not stack multiple ultrawide patches; keep only one.
-
 ## Credits
 
 - [SUWSF](https://github.com/PhantomGamers/SUWSF) by PhantomGamers — the runtime byte-patcher used here
@@ -106,7 +99,7 @@ python check_patterns.py sora_2nd.exe.bak # check the vanilla backup
 
 MIT
 
----
+--Thanks to Lyall — the approach was inspired by hi
 
 ## 中文说明（Chinese）
 
@@ -117,5 +110,5 @@ MIT
 - **自检**：`python check_patterns.py`（游戏更新后确认特征码是否仍匹配）。
 - **已知限制**：vfx `black_belt` 演出黑边、部分 HUD 锚点需 ASI 插件级处理，暂未包含。
 - 如出现其它方案（含 Lyall 的 2nd Chapter 版本），任选其一、请勿叠加；本仓库会持续维护。
-
+（独立第三方作品；思路受 Lyall 的 *Sky1stChapterFix* 启发，
 测试环境：Steam buildid `25340742`（2026-09-17）；原版 exe SHA-256 `485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`。
