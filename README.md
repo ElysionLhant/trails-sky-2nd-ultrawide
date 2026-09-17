@@ -1,105 +1,106 @@
 # trails-sky-2nd-ultrawide
 
-**空之轨迹 the 2nd / Trails in the Sky 2nd Chapter —— 32:9 / 超宽屏补丁**
+A 32:9 / ultrawide fix for **The Legend of Heroes: Trails in the Sky 2nd Chapter** (Falcom, 2026, PC/Steam).
 
-*无黑边全幅渲染（解锁宽高比钳制）+ 去除过场黑条。两种等价实现：SUWSF 运行时补丁（不改游戏文件）或静态字节补丁。*
+Removes the engine's aspect-ratio clamp (full-width rendering, no pillarboxing) and skips the cutscene letterbox bars.
+Shipped as two equivalent implementations: a **SUWSF runtime patch** (modifies nothing on disk) or a **static byte patcher**.
 
-A 32:9 (and general ultrawide) fix for *The Legend of Heroes: Trails in the Sky 2nd Chapter* (Falcom, 2026 PC/Steam).
-
-> **非官方补丁（unofficial）**：独立第三方制作，与 Falcom、Lyall 均无隶属关系。
+> **Unofficial patch** — an independent third-party work, not affiliated with Falcom or Lyall.
+>
+> 中文说明见文末（Chinese notes at the bottom of this page）。
 
 ---
+What it does
 
-## 补丁内容
+The engine clamps the render aspect ratio to a maximum, which causes pillar/letterboxing on ultrawide displays; cutscenes additionally draw top/bottom bars. This patch changes 4 instructions:
 
-游戏原版会把渲染宽高比钳制在某个上限，超宽屏下出现两侧黑边；过场演出还会绘制上下黑条。本补丁共修改 4 处机器码：
+| # | File offset | Original | Patched | Effect |
+|---|-------------|----------|---------|--------|
+| 1 | `0x5abb2b` | `76 1A` (jbe) | `EB 1A` (jmp) | Skip the render **width** clamp branch |
+| 2 | `0x5abb57` | `76 24` (jbe) | `EB 24` (jmp) | Skip the render **height** clamp branch |
+| 3 | `0x513727` | `8B 88 B0 00 00 00` | `31 C9 90 90 90 90` | Cutscene bar (top) size = 0 |
+| 4 | `0x513857` | `8B 88 B0 00 00 00` | `31 C9 90 90 90 90` | Cutscene bar (bottom) size = 0 |
 
-| # | 文件偏移 | 原始 | 修改后 | 作用 |
-|---|----------|------|--------|------|
-| 1 | `0x5abb2b` | `76 1A`（jbe） | `EB 1A`（jmp） | 跳过「渲染宽度钳制」分支 |
-| 2 | `0x5abb57` | `76 24`（jbe） | `EB 24`（jmp） | 跳过「渲染高度钳制」分支 |
-| 3 | `0x513727` | `8B 88 B0 00 00 00` | `31 C9 90 90 90 90` | 过场黑条（上）尺寸=0 |
-| 4 | `0x513857` | `8B 88 B0 00 00 00` | `31 C9 90 90 90 90` | 过场黑条（下）尺寸=0 |
+- With both clamps skipped, the render resolution equals the full screen resolution (e.g. 5120x1440 edge to edge, no black borders).
+- The bar size is read from a render-size field; forcing it to 0 stops the bars from being drawn.
 
-- 宽度/高度钳制改为无条件跳过后，渲染分辨率 = 全屏分辨率（例如 5120x1440 全幅渲染、无黑边）。
-- 黑条尺寸取自渲染尺寸字段，置 0 后不再绘制。
+**Tested environment**
 
-**测试环境**
+- Steam buildid `25340742` (release day 2026-09-17), `sora_2nd.exe` size 13,463,552 bytes
+- Vanilla exe SHA-256: `485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`
+- Steam AppID: `4225980`
 
-- Steam buildid `25340742`（发售日 2026-09-17），`sora_2nd.exe` 大小 13,463,552 字节
-- 原版 exe SHA-256：`485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`
-- Steam AppID：`4225980`
-
+> No game assets are included in this repository. Pick either installation method below — they have the same effect.
 > 本仓库不包含任何游戏资源。两种安装方式任选其一，效果完全相同。
 
 ---
 
-## 安装方式 A：SUWSF 运行时补丁（推荐）
+## Installation — Option A: SUWSF runtime patch (recommended)
 
-原理：[SUWSF](https://github.com/PhantomGamers/SUWSF) 在游戏启动时按 INI 里的特征码扫描内存并改写字节——**不改动 exe**，游戏更新覆盖 exe 后通常仍自动生效。
+[SUWSF](https://github.com/PhantomGamers/SUWSF) scans the process memory at launch for the byte patterns from an INI file and rewrites them — **the exe is never modified**, and the patch usually keeps working after game updates.
 
-1. 确保已安装 **VC++ x64 运行库**；从 [SUWSF Releases](https://github.com/PhantomGamers/SUWSF/releases) 下载 `SUWSF-x64.zip` 并解压（得到 `SUWSF.asi`、`SUWSF.ini`、`dsound.dll`）。
-2. 用**本仓库的 `SUWSF.ini`** 替换解压出来的示例 INI。
-3. **把 `dsound.dll` 改名为 `d3d11.dll`**。
-   ⚠️ 关键步骤：本游戏不导入 `dsound.dll`，只从 `d3d11.dll` 导入 `D3D11CreateDevice`，因此加载器必须以 `d3d11.dll` 的文件名放在游戏目录才会被系统加载。
-4. 把 `SUWSF.asi`、`SUWSF.ini`、`d3d11.dll` 一起放到游戏根目录（`sora_2nd.exe` 旁边）。
-5. 若此前用过静态补丁，先还原 exe：`python apply_32x9_patch.py restore`。
-6. 启动游戏。目录下会生成 `SUWSF.log`，正常应能看到：
+1. Make sure the **VC++ x64 runtime** is installed. Download `SUWSF-x64.zip` from [SUWSF Releases](https://github.com/PhantomGamers/SUWSF/releases) and extract it (`SUWSF.asi`, `SUWSF.ini`, `dsound.dll`).
+2. Replace the sample INI with **this repo's `SUWSF.ini`**.
+3. **Rename `dsound.dll` to `d3d11.dll`.**
+   ⚠️ Important: this game does not import `dsound.dll` — it imports `D3D11CreateDevice` from `d3d11.dll`, so the loader must use that exact filename to be loaded by Windows.
+4. Put `SUWSF.asi`, `SUWSF.ini` and `d3d11.dll` next to `sora_2nd.exe` (game root folder).
+5. If you previously used the static patch, restore the exe first: `python apply_32x9_patch.py restore`.
+6. Launch the game. A `SUWSF.log` file appears in the folder; it should contain:
 
    ```
    Found patch Patch:UW_ResWidthUnclamp
    ...
-   Found 1 matches        <- 宽度钳制
-   Found 1 matches        <- 高度钳制
-   Found 2 matches        <- 过场黑条（上下两处）
+   Found 1 matches        <- width clamp
+   Found 1 matches        <- height clamp
+   Found 2 matches        <- cutscene bars (top + bottom)
    ```
 
-   （`Found 0 matches` 表示特征码失配：要么 exe 已被静态补丁改过，要么游戏更新了。）
+   (`Found 0 matches` means the patterns no longer match: either the exe is already statically patched, or the game updated.)
 
-**卸载**：删除 `d3d11.dll`、`SUWSF.asi`、`SUWSF.ini`（和 `SUWSF.log`）即可，游戏本体零改动。
+**Uninstall**: delete `d3d11.dll`, `SUWSF.asi`, `SUWSF.ini` (and `SUWSF.log`) — the game itself is untouched.
 
-> `d3d11.dll` 是本补丁新增的文件，游戏更新不会覆盖它。若未来游戏改动导致失配，欢迎提 issue 附上新的 `SUWSF.log`。
+> `d3d11.dll` is a new file added by this patch; game updates won't overwrite it. If a future game update breaks the patterns, open an issue with the new `SUWSF.log`.
 
 ---
 
-## 安装方式 B：静态字节补丁
+## Installation — Option B: Static byte patcher
 
-1. 直接改 exe；首次运行自动备份原版为 `sora_2nd.exe.bak`。
+1. Patches the exe directly; the original is backed up automatically as `sora_2nd.exe.bak` on first run.
 
    ```
-   python apply_32x9_patch.py            # 打补丁
-   python apply_32x9_patch.py restore    # 还原原版
+   python apply_32x9_patch.py            # apply
+   python apply_32x9_patch.py restore    # restore the vanilla exe
    ```
 
-2. 游戏每次更新都会覆盖 exe，需要重新打补丁；若脚本提示「校验失败」，说明程序偏移变化，需要重新适配。
+2. Every game update overwrites the exe, so the patch must be re-applied. If the script reports a check failure, the offsets changed and need re-deriving.
 
-**特征码自检**（两种方式通用，用于确认当前 exe 是否仍可与 `SUWSF.ini` 匹配）：
+**Pattern check** (works for both options — verifies that the current exe still matches `SUWSF.ini`):
 
 ```
-python check_patterns.py                  # 默认检查同目录 sora_2nd.exe + SUWSF.ini
-python check_patterns.py sora_2nd.exe.bak # 检查原版备份
+python check_patterns.py                  # checks ./sora_2nd.exe + ./SUWSF.ini by default
+python check_patterns.py sora_2nd.exe.bak # check the vanilla backup
 ```
 
 ---
 
-## 已知限制
+## Known limitations
 
-- 剧情演出中 vfx `black_belt` 绘制的黑边/黑框不在处理范围（需要 ASI 插件级别的运行时判断，静态补丁与 SUWSF 均做不了）。
-- 部分 HUD 锚点位置同样属于运行时逻辑项，未处理。
+- Black borders drawn by the `black_belt` vfx during story scenes are not covered (they need runtime logic; neither the static patch nor SUWSF can do it).
+- Some HUD anchor positions are likewise runtime logic and are not covered.
 
-## 独立性与共存说明
+## Independence & compatibility
 
-- 本补丁为独立第三方作品，与 Falcom、Lyall 均**无隶属关系**，也未使用他人代码：4 处修改均为本仓库独立逆向得出，仅在思路上受到 *Sky1stChapterFix* 的启发（详见 Credits）。
-- 截至 2026-09，2nd Chapter 尚无其它公开的超宽屏修复；Lyall 未发布 2nd Chapter 版本（其 1st Chapter 版做了同类核心修复，另含近距消抖、<16:9 FOV 等附加项）。
-- 未来若出现其它方案（包括 Lyall 的 2nd Chapter 版本），任选其一即可，互不冲突；本仓库会持续维护。
-- 请勿将多个超宽屏补丁**叠加使用**，保留一种即可。
+- An independent third-party work: not affiliated with Falcom or Lyall, and no code is reused from others. All 4 writes were reverse-engineered independently; only the approach was inspired by Lyall's *Sky1stChapterFix* (see Credits).
+- As of 2026-09 no other public ultrawide fix for the 2nd Chapter exists (Lyall has not released a 2nd Chapter version; his 1st Chapter fix contains the same core fixes plus extras such as near-camera dithering removal and <16:9 FOV correction).
+- If other solutions appear (including a 2nd Chapter fix by Lyall), pick whichever you prefer — they don't conflict. This repo will keep being maintained.
+- Do not stack multiple ultrawide patches; keep only one.
 
 ## Credits
 
-- [SUWSF](https://github.com/PhantomGamers/SUWSF) by PhantomGamers —— 通用运行时字节补丁器
-- [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) by ThirteenAG
-- 逆向思路参考 Lyall 的 [Sky1stChapterFix](https://codeberg.org/Lyall/Sky1stChapterFix)
-- 游戏版权归 Nihon Falcom 所有；请支持正版
+- [SUWSF](https://github.com/PhantomGamers/SUWSF) by PhantomGamers — the runtime byte-patcher used here
+- [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) by ThirteenAG — ASI loading
+- Approach inspired by Lyall's [Sky1stChapterFix](https://codeberg.org/Lyall/Sky1stChapterFix)
+- The game is © Nihon Falcom — please support the official release.
 
 ## License
 
@@ -107,15 +108,14 @@ MIT
 
 ---
 
-## English (short)
+## 中文说明（Chinese）
 
-32:9 / ultrawide fix for **Trails in the Sky 2nd Chapter** (Falcom 2026, Steam AppID 4225980). Removes the engine's aspect-ratio clamp (full-width rendering, no pillar/letterboxing) and skips the cutscene letterbox bars — 4 byte-level writes, shipped as two equivalent implementations:
+《空之轨迹 the 2nd》32:9 / 超宽屏补丁 —— 独立第三方作品，与 Falcom、Lyall 均无隶属关系；4 处修改为独立逆向所得，思路受 Lyall 的 *Sky1stChapterFix* 启发（详见 Credits）。
 
-- **A. Runtime (recommended):** drop `SUWSF.asi` + this repo's `SUWSF.ini` + the SUWSF loader **renamed to `d3d11.dll`** next to `sora_2nd.exe` (the game imports `D3D11CreateDevice` from `d3d11.dll` and does *not* import `dsound.dll`). Check `SUWSF.log` for `Found 1 / 1 / 2 matches`. No game files are modified; delete the 3 files to uninstall.
-- **B. Static:** `python apply_32x9_patch.py` (auto-backup) / `python apply_32x9_patch.py restore`. Re-apply after every game update.
+- **方式 A（推荐，不改游戏文件）**：下载 [SUWSF x64](https://github.com/PhantomGamers/SUWSF/releases)，用本仓库的 `SUWSF.ini` 替换示例配置，并把 `dsound.dll` **改名为 `d3d11.dll`**（本游戏只导入 `d3d11.dll`，必须用该文件名才会被加载）；三个文件放入游戏根目录。启动后检查 `SUWSF.log`，应显示 `Found 1 / 1 / 2 matches`。卸载＝删除这三个文件。
+- **方式 B（静态）**：`python apply_32x9_patch.py` 打补丁 / `python apply_32x9_patch.py restore` 还原；游戏更新后需重打补丁。
+- **自检**：`python check_patterns.py`（游戏更新后确认特征码是否仍匹配）。
+- **已知限制**：vfx `black_belt` 演出黑边、部分 HUD 锚点需 ASI 插件级处理，暂未包含。
+- 如出现其它方案（含 Lyall 的 2nd Chapter 版本），任选其一、请勿叠加；本仓库会持续维护。
 
-Tested on Steam buildid 25340742 (2026-09-17); vanilla exe SHA-256 `485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`.
-
-Known limitations: vfx `black_belt` cutscene borders and some HUD anchors need an ASI plugin and are not covered.
-
-Credits: SUWSF (PhantomGamers), Ultimate ASI Loader (ThirteenAG); approach inspired by Lyall's Sky1stChapterFix. MIT license. No game assets are included.
+测试环境：Steam buildid `25340742`（2026-09-17）；原版 exe SHA-256 `485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`。
