@@ -89,7 +89,7 @@ python check_patterns.py sora_2nd.exe.bak # 检查原版备份
 - 若关于 Lyall 官方修复的共存说明
 
 - 本补丁与 Lyall **无隶属关系**，也未使用其任何代码：4 处修改均为本仓库独立逆向得出，仅在思路上受到 *Sky1stChapterFix* 的启发（详见 Credits）。
-- 这是一个**临时（stop-gap）方案**：如果能等，请优先期待 Lyall 的正式修复——其在 `black_belt` 黑边、HUD 锚点等边界情况上的处理会更完善。
+- 这是一个**临时（stop-gap）方案**：截至 2026-09，作者尚未发布 2nd Chapter 版本（其 1st Chapter 版已修复同类核心问题，另含近距消抖等附加功能）。若其发布 2nd Chapter 版本，请优先使用官方修复。
 - 当官方修复发布后，本仓库会更新 README 指引大家优先使用官方版本（并考虑归档）。
 - 请勿与其他超宽屏补丁叠加使用，保留一种即可。
 
