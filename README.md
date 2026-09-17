@@ -10,7 +10,8 @@ Shipped as two equivalent implementations: a **SUWSF runtime patch** (modifies n
 > 中文说明见文末（Chinese notes at the bottom of this page）。
 
 ---
-What it does
+
+## What it does
 
 The engine clamps the render aspect ratio to a maximum, which causes pillar/letterboxing on ultrawide displays; cutscenes additionally draw top/bottom bars. This patch changes 4 instructions:
 
@@ -31,7 +32,6 @@ The engine clamps the render aspect ratio to a maximum, which causes pillar/lett
 - Steam AppID: `4225980`
 
 > No game assets are included in this repository. Pick either installation method below — they have the same effect.
-> 本仓库不包含任何游戏资源。两种安装方式任选其一，效果完全相同。
 
 ---
 
@@ -92,23 +92,22 @@ python check_patterns.py sora_2nd.exe.bak # check the vanilla backup
 
 - [SUWSF](https://github.com/PhantomGamers/SUWSF) by PhantomGamers — the runtime byte-patcher used here
 - [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader) by ThirteenAG — ASI loading
-- Approach inspired by Lyall's [Sky1stChapterFix](https://codeberg.org/Lyall/Sky1stChapterFix)
+- Thanks to Lyall — the approach was inspired by his [Sky1stChapterFix](https://codeberg.org/Lyall/Sky1stChapterFix)
 - The game is © Nihon Falcom — please support the official release.
 
 ## License
 
 MIT
 
---Thanks to Lyall — the approach was inspired by hi
+---
 
 ## 中文说明（Chinese）
 
-《空之轨迹 the 2nd》32:9 / 超宽屏补丁 —— 独立第三方作品，与 Falcom、Lyall 均无隶属关系；4 处修改为独立逆向所得，思路受 Lyall 的 *Sky1stChapterFix* 启发（详见 Credits）。
+《空之轨迹 the 2nd》32:9 / 超宽屏补丁（独立第三方作品；思路受 Lyall 的 *Sky1stChapterFix* 启发，详见 Credits）。
 
 - **方式 A（推荐，不改游戏文件）**：下载 [SUWSF x64](https://github.com/PhantomGamers/SUWSF/releases)，用本仓库的 `SUWSF.ini` 替换示例配置，并把 `dsound.dll` **改名为 `d3d11.dll`**（本游戏只导入 `d3d11.dll`，必须用该文件名才会被加载）；三个文件放入游戏根目录。启动后检查 `SUWSF.log`，应显示 `Found 1 / 1 / 2 matches`。卸载＝删除这三个文件。
 - **方式 B（静态）**：`python apply_32x9_patch.py` 打补丁 / `python apply_32x9_patch.py restore` 还原；游戏更新后需重打补丁。
 - **自检**：`python check_patterns.py`（游戏更新后确认特征码是否仍匹配）。
 - **已知限制**：vfx `black_belt` 演出黑边、部分 HUD 锚点需 ASI 插件级处理，暂未包含。
-- 如出现其它方案（含 Lyall 的 2nd Chapter 版本），任选其一、请勿叠加；本仓库会持续维护。
-（独立第三方作品；思路受 Lyall 的 *Sky1stChapterFix* 启发，
+
 测试环境：Steam buildid `25340742`（2026-09-17）；原版 exe SHA-256 `485EFF96B37B11860F39C2D1A7390D6C91F4046E79519A85076E1CA4CDB6B616`。
