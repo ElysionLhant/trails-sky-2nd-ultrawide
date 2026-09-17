@@ -6,6 +6,8 @@
 
 A 32:9 (and general ultrawide) fix for *The Legend of Heroes: Trails in the Sky 2nd Chapter* (Falcom, 2026 PC/Steam).
 
+> ⚠️ **非官方、临时性补丁（stop-gap）**：若 Lyall 发布正式的 *Sky2ndChapterFix*，请优先使用官方修复；本仓库届时会更新指引（见文末「共存说明」）。
+
 ---
 
 ## 补丁内容
@@ -84,7 +86,14 @@ python check_patterns.py sora_2nd.exe.bak # 检查原版备份
 
 - 剧情演出中 vfx `black_belt` 绘制的黑边/黑框不在处理范围（需要 ASI 插件级别的运行时判断，静态补丁与 SUWSF 均做不了）。
 - 部分 HUD 锚点位置同样属于运行时逻辑项，未处理。
-- 若 Lyall 发布正式的 *Sky2ndChapterFix*，建议平滑切换：<https://codeberg.org/Lyall>
+- 若关于 Lyall 官方修复的共存说明
+
+- 本补丁与 Lyall **无隶属关系**，也未使用其任何代码：4 处修改均为本仓库独立逆向得出，仅在思路上受到 *Sky1stChapterFix* 的启发（详见 Credits）。
+- 这是一个**临时（stop-gap）方案**：如果能等，请优先期待 Lyall 的正式修复——其在 `black_belt` 黑边、HUD 锚点等边界情况上的处理会更完善。
+- 当官方修复发布后，本仓库会更新 README 指引大家优先使用官方版本（并考虑归档）。
+- 请勿与其他超宽屏补丁叠加使用，保留一种即可。
+
+##  Lyall 发布正式的 *Sky2ndChapterFix*，建议平滑切换：<https://codeberg.org/Lyall>
 
 ## Credits
 

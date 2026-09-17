@@ -1,5 +1,5 @@
 # 空之轨迹 the 2nd 32:9 补丁（静态字节补丁）
-# 思路移植自 Lyall 的 Sky1stChapterFix（https://codeberg.org/Lyall/Sky1stChapterFix）
+# 思路启发自 Lyall 的 Sky1stChapterFix（https://codeberg.org/Lyall/Sky1stChapterFix）
 #   1. 分辨率解钳制：游戏原逻辑在 画面宽高比 > 上限 时把渲染宽度钳制回上限（产生 32:9 黑边），
 #      把两处 jbe 改为 jmp 后，钳制分支永远跳过，渲染分辨率=全屏分辨率，居中偏移=0。
 #   2. 过场黑条（Letterbox Top/Bottom）：黑条矩形的宽度原本取自渲染宽度，改为恒 0（xor ecx,ecx），
